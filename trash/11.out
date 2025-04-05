@@ -1,0 +1,10 @@
+
+dec_digits=1000  lrs_digits=112
+
+2  0  1109/3948  0  110/329  0  0  463/2632  0  1649/7896 -3191/329 
+1  109/987  0  233/987  0  53/141  0  274/987  0  0  3191/329 
+
+*Number of equilibria found: 1
+*Player 1: vertices=78 bases=543 pivots=552
+*Player 2: vertices=1 bases=1 pivots=169
+
