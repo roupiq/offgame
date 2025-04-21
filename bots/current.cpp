@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "core.h"
+#include "core1.h"
 using namespace std;
 #define all(x) x.begin(), x.end()
 #define len(x) (int)x.size()
@@ -12,35 +12,20 @@ using pid = pair<int, double>;
 
 int main()
 {
-    // cerr << fixed << setprecision(4);
-
-    GameState game;
-
+    cerr << fixed << setprecision(4);
     start_time = microseconds();
     ran = mt19937(12);
 
+    GameState game;
     game.read_board();
-    max_depth = max_round_num - game.round_num;
 
-    preprocess_bullets(game);
-    for (auto &b : game.has_bullet)
-        b = 0;
-    game.bullets.clear();
+    // max_depth = max_round_num - game.round_num;
+    auto [a, b] = game.eval_moves(30, min(160, max_round_num - game.round_num - 1), 2);
 
-    auto [a, b] = game.eval_moves(30, min(160, max_round_num - game.round_num - 1));
-    // cout << game.kmonte_carlo_eval(500, min(160, max_round_num - game.round_num - 1)) << "\n";
-    // cout << a[a.maxSample()] << "\n";
-    if(a.maxSample() > 8 || a.maxSample() < 0)
-        cerr << a.maxSample() << "\n";
+    assert(a.maxSample() < 9 && a.maxSample() >= 0);
+    // cerr << a << "\n";
     cout << a.maxSample() << "\n";
     // cerr << a << "\n";
-    // cerr << b << "\n";
-
-    // cout << game.kmonte_carlo_eval(300, max_round_num - game.round_num - 1) << "\n";
-    // cout << game.kmonte_carlo_eval(300, max_round_num - game.round_num - 1) << "\n";
-    
-    // auto [a1, b1] = game.nonlethal();
-    // cerr << a1 << "\n";
 }
 
 /*

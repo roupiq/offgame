@@ -105,19 +105,19 @@ ostream &operator<<(ostream &o, const Moves &t)
     return o;
 }
 
-double read_double(ifstream &o)
-{
-    int x, y = 1;
-    o >> x;
-    char c;
-    c = (char)o.get();
-    // o >> c;
-    // cerr << c << "\n";
-    if (c == '/')
-        o >> y;
-    // cerr << x << " " << c << " " << y << "\n";
-    return x / y;
-}
+// double read_double(ifstream &o)
+// {
+//     int x, y = 1;
+//     o >> x;
+//     char c;
+//     c = o.get();
+//     // o >> c;
+//     // cerr << c << "\n";
+//     if (c == '/')
+//         o >> y;
+//     // cerr << x << " " << c << " " << y << "\n";
+//     return x / y;
+// }
 
 // pair<vector<double>, double> solve_nash(vector<vector<double>> matrix)
 // {
@@ -129,6 +129,7 @@ double read_double(ifstream &o)
 //     {
 //         for (auto e : row)
 //             f << round(e * 100) << " ";
+
 //         f << "\n";
 //     }
 //     f << "\n";
@@ -139,6 +140,7 @@ double read_double(ifstream &o)
 //         f << "\n";
 //     }
 //     f.close();
+
 //     assert(!system(("./lrslib-073/lrsnash trash/matrix" + id + ".txt > trash/" + id + ".out 2> /dev/null").c_str()));
 //     ifstream out("trash/" + id + ".out");
 //     string del;
@@ -165,6 +167,7 @@ double read_double(ifstream &o)
 //         }
 //         else if (p == 1)
 //         {
+
 //             for (int i = 0; i < len(matrix[0]); i++)
 //             {
 //                 a.push_back(read_double(out));
@@ -182,6 +185,7 @@ double read_double(ifstream &o)
 //             assert(!"!ups");
 //         }
 //     }
+
 //     // cerr << a << " " << b << endl;
 //     return {a, payout};
 // }
@@ -189,24 +193,57 @@ double read_double(ifstream &o)
 pair<vector<double>, double> solve_nash(vector<vector<double>> matrix)
 {
     vector<double> res;
+    vector<double> weight(len(matrix[0]), 1);
+    double weight_sum = len(matrix[0]);
+    // double weight_sum = len(matrix[0]);
+    // for (int j = 0; j < len(matrix[0]); j++)
+    // {
+    //     double eval = 0.0;
+    //     double suma = 0.01;
+    //     for (int i = 0; i < len(matrix); i++)
+    //     {
+    //         double c = matrix[i][j] / 2 + 0.5;
+    //         suma += c;
+    //     }
+    //     weight[j] += (suma / len(matrix));
+    //     weight_sum += weight.back();
+    // }
+
     for (int i = 0; i < len(matrix); i++)
     {
         double eval = 0.0;
-        double suma = 0.0;
         for (int j = 0; j < len(matrix[0]); j++)
         {
-            eval += matrix[i][j] / 2 + 0.5;
+            double c = matrix[i][j] / 2 + 0.5;
+            eval += c * weight[j];
+        }
+        res.push_back(eval / weight_sum);
+    }
+    return {res, 0.0};
+}
+
+pair<vector<double>, double> solve_nash2(vector<vector<double>> matrix)
+{
+    vector<double> res;
+    for (int i = 0; i < len(matrix); i++)
+    {
+        double eval = 0.0;
+        for (int j = 0; j < len(matrix[0]); j++)
+        {
+            double c = matrix[i][j] / 2 + 0.5;
+            eval += sqrt(c);
+            // cerr << c << " " << sqrt(c) << "\n";
+            // suma += c;
         }
         res.push_back(eval / len(matrix[0]));
     }
     return {res, 0.0};
 }
 
-map<pair<pii, pii>, double> past_states;
 struct GameState
 {
     int round_num;
-    bool r_killed = false, b_killed = false;
+    bool r_killed, b_killed;
 
     array<bitset<20>, 15> has_bullet;
     vector<Bullet> bullets;
@@ -227,7 +264,7 @@ struct GameState
      * -- distance_to_center
      * -- enemy_distance_to_center
      */
-#ifndef nometafeatures
+#ifndef sus
     long bfs(pii start) const
     {
         long res = 1;
@@ -299,7 +336,6 @@ struct GameState
     {
         return manhat(b_pos, {10, 7});
     }
-#endif
 
     GameState()
     {
@@ -331,11 +367,6 @@ struct GameState
         return prepro_has_bullet[round_num - start_round][pos.x][pos.y] || has_bullet[pos.x][pos.y];
     }
 
-    bool pos_has_bullet2(pii pos) const
-    {
-        return prepro_has_bullet[round_num - start_round][pos.x][pos.y] || has_bullet[pos.x][pos.y];
-    }
-
     void move_bullet(int i)
     {
         Bullet &bullet = bullets[i];
@@ -350,15 +381,10 @@ struct GameState
         bullets.push_back(bullet);
         has_bullet[bullet.pos.x][bullet.pos.y] = true;
     }
-    void add_bullet2(Bullet bullet)
-    {
-        bullets.push_back(bullet);
-        has_bullet[bullet.pos.x][bullet.pos.y] = true;
-    }
     void move_bullets()
     {
         round_num++;
-        for (auto &r : has_bullet)
+        for(auto &r : has_bullet)
             r = 0;
         for (int i = 0; i < len(bullets); i++)
             move_bullet(i);
@@ -447,6 +473,7 @@ struct GameState
         auto [a, b] = nonlethal();
         return {a.sample(), b.sample()};
     }
+#endif
 
     double kmonte_carlo_eval(int r, int d) const
     {
@@ -482,15 +509,11 @@ struct GameState
 
     double rec_eval(int r, int d, int depth) const
     {
-        GameState check = *this;
-        double keval = kmonte_carlo_eval(r, d);
-        if (abs(keval) > 0.5)
-            return keval;
-        if (depth == 0)
+        if(depth == 0)
         {
-            return keval;
+            return kmonte_carlo_eval(r, d);
         }
-
+        GameState check = *this;
         auto [nl_r, nl_b] = check.nonlethal();
         vector<int> ok;
         vector<int> ok2;
@@ -509,7 +532,7 @@ struct GameState
             {
                 GameState monte = check;
                 monte.move_players(i, j);
-                double score = rec_eval(r, d, depth - 1);
+                double score = monte.rec_eval(r, d, depth - 1);
                 eval[i][j] = score;
             }
         }

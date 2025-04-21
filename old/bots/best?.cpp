@@ -104,7 +104,7 @@ struct GameState
     void move_bullets()
     {
         round_num++;
-
+        
         for (int i = 0; i < len(bullets); i++)
             move_bullet(i);
     }

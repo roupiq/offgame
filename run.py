@@ -10,7 +10,11 @@ def compile(prog, out):
 def run_game(id):
     global red_score, blue_score, ties
     print(id)
-    os.system(f"python3 gra.py -r ./r -b ./b --silent --nice-print -n 15 -m 20 -w 15 --round-count 200 --id {id} --timeout 10000")
+    r = os.system(f"python3 gra.py -r ./r -b ./b --silent --nice-print -n 15 -m 20 -w 15 --round-count 200 --id {id} --timeout 10000")
+    # r = os.system(f"python3 gra.py -r ./r -b ./b -n 15 -m 20 -w 15 --round-count 200 --id {id} --timeout 10000")
+    if r:
+        print("ups")
+        exit(1)
     with open(f"results{id}", "r") as file:
         r = file.read()
         if r == "RED":
@@ -20,13 +24,11 @@ def run_game(id):
         if r == "TIE":
             ties += 1
         os.remove(f"results{id}")
-# a = "template"
-# a = "roupiq3.5-turbo"
-# a = "roupiq1.2"
-# a = "roupiq1.1"
-# a = "roupiq1.1"
-a = "roupiq1.1"
+
+a = "andr729"
 b = "current"
+# a = "current"
+# b = "current"
 
 """
 oldbest : 0.000000%
@@ -53,18 +55,19 @@ seed = random.randint(0, 1000)
 
 # while True:
 #     seed = random.randint(0, 1000)
-#     os.system(f"python3 gra.py --nice-print -r ./r -b ./b -n 15 -m 20 -w 15 --round-count 400 --wait 100 --seed {seed} --timeout 100000")
+#     # os.system(f"python3 gra.py --nice-print -r ./r -b ./b -n 15 -m 20 -w 15 --round-count 400 --wait 100 --seed {seed} --timeout 100000")
+#     os.system(f"python3 gra.py -r ./r -b ./b -n 15 -m 20 -w 15 --round-count 400 --wait 100 --seed {seed} --timeout 100000")
 #     # os.system(f"python3 gra.py -r ./r -b ./b -n 7 -m 7 -w 5 --round-count 400 --wait 20 --seed {seed}")
 #     # os.system(f"python3 gra.py -r ./r -b ./b --nice-print -n 15 -m 20 -w 15 --round-count 400 --wait 20 --seed {seed}")
 #     print("seed: ", seed)
 # exit(0)
 
-n_games = 30
+n_games = 10
 
 import time
 begin = time.time() 
 
-threads = 15
+threads = 5
 
 from concurrent.futures import ThreadPoolExecutor
 
